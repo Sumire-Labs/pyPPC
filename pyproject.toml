@@ -44,20 +44,21 @@ dev = [
 ]
 
 [project.scripts]
-ppc = "ppc.cli:main"
+ppc = "ppc_cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/pyPPC"
-Documentation = "https://github.com/yourusername/pyPPC#readme"
-Repository = "https://github.com/yourusername/pyPPC"
-Issues = "https://github.com/yourusername/pyPPC/issues"
+Homepage = "https://sumiresaba.com/"
+Documentation = "https://sumiresaba.com/wiki/ppc/cheatsheat"
+Repository = "https://github.com/Sumire-Labs/pyPPC"
+Issues = "https://github.com/Sumire-Labs/pyPPC/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["lib/ppc"]
+packages = ["lib/ppc", "cli/ppc_cli"]
 
 [tool.hatch.build.targets.sdist]
 include = [
     "lib/",
+    "cli/",
     "examples/",
     "tests/",
     "README.md",
