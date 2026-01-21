@@ -43,6 +43,9 @@ dev = [
     "pytest-cov>=4.0.0",
 ]
 
+[project.scripts]
+ppc = "ppc.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/yourusername/pyPPC"
 Documentation = "https://github.com/yourusername/pyPPC#readme"

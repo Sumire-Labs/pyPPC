@@ -147,6 +147,46 @@ config.items()             # キーと値のペア
 | `list` | `[1, 2, 3]` |
 | `null` | `null`, `none`, `nil` |
 
+## CLIコマンド
+
+```bash
+# バージョン確認
+ppc --version
+
+# ファイルの検証
+ppc validate config.ppc
+
+# フォーマット（標準出力）
+ppc format config.ppc
+
+# フォーマット（上書き保存）
+ppc format config.ppc -w
+
+# JSONに変換
+ppc to-json config.ppc
+ppc to-json config.ppc -o config.json
+
+# YAMLに変換
+ppc to-yaml config.ppc
+ppc to-yaml config.ppc -o config.yaml
+
+# 特定のキーの値を取得
+ppc get config.ppc bot.token
+ppc get config.ppc database.port
+
+# 必要な環境変数を一覧表示
+ppc env config.ppc
+
+# 環境変数が設定されているかチェック
+ppc env config.ppc --check
+
+# 新しい設定ファイルを作成
+ppc init                          # minimal テンプレート
+ppc init -t bot                   # Discord Bot用
+ppc init -t web                   # Webアプリ用
+ppc init -o myconfig.ppc          # 出力ファイル指定
+```
+
 ## 例: Discord Bot設定
 
 ```ppc
