@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyPPC"
+version = "0.1.0"
+description = "A human-readable configuration format for Python bots"
+readme = "README.md"
+license = "WTFPL"
+requires-python = ">=3.8"
+authors = [
+    { name = "pyPPC" }
+]
+keywords = [
+    "config",
+    "configuration",
+    "parser",
+    "bot",
+    "discord",
+    "ppc",
+    "pyppc",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: Public Domain",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/pyPPC"
+Documentation = "https://github.com/yourusername/pyPPC#readme"
+Repository = "https://github.com/yourusername/pyPPC"
+Issues = "https://github.com/yourusername/pyPPC/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lib/ppc"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "lib/",
+    "examples/",
+    "tests/",
+    "README.md",
+    "LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.coverage.run]
+source = ["lib/ppc"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+]

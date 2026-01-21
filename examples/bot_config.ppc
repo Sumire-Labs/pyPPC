@@ -1,0 +1,62 @@
+# =============================================
+# Discord Bot Configuration
+# pepeconfig (.ppc) format
+# =============================================
+
+# Bot settings
+>> bot
+  token :: str = $env.DISCORD_TOKEN
+  prefix :: str = "!"
+  description = "My awesome Discord bot"
+  debug :: bool = false
+
+# Database configuration
+>> database
+  host = "localhost"
+  port :: int = 5432
+  name = "botdb"
+  user = "bot_user"
+  password = $secret.DB_PASSWORD ?? "default_password"
+
+# Cogs (extensions) to load
+>> cogs
+  enabled = ["music", "moderation", "fun", "utility"]
+  disabled = []
+
+# Permissions
+>> permissions.admin
+  user_ids = [123456789012345678, 987654321098765432]
+  role_names = ["Admin", "Moderator"]
+
+>> permissions.blacklist
+  user_ids = []
+  guild_ids = []
+
+# Logging
+>> logging
+  level = "INFO"
+  file = "bot.log"
+  format = "[{time}] {level}: {message}"
+
+# API keys
+>> api
+  openai_key = $env.OPENAI_API_KEY ?? ""
+  weather_key = $env.WEATHER_API_KEY
+
+# Server configuration
+>> server
+  port :: int = $env.PORT ?? 8080
+  host = "0.0.0.0"
+
+# Development overrides
+>> @when $env.ENV == "dev"
+  >> bot
+    debug = true
+    prefix = "??"
+
+  >> logging
+    level = "DEBUG"
+
+  >> database
+    host = "localhost"
+    name = "botdb_dev"
