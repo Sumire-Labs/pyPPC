@@ -1,0 +1,132 @@
+# =============================================
+# REST API Server Configuration
+# =============================================
+
+>> api
+  name = "MyAPI"
+  version = "2.1.0"
+  base_path = "/api/v2"
+  docs_url = "/docs"
+  redoc_url = "/redoc"
+
+>> server
+  host = "0.0.0.0"
+  port :: int = $env.API_PORT ?? 3000
+  workers :: int = $env.WORKERS ?? 4
+  timeout :: int = 30
+  keep_alive :: int = 5
+
+>> security
+  api_key_header = "X-API-Key"
+  api_keys = $secret.API_KEYS
+  rate_limit_enabled :: bool = true
+  rate_limit_requests :: int = 1000
+  rate_limit_window :: int = 3600
+
+>> database.primary
+  driver = "postgresql"
+  host = $env.DB_HOST ?? "localhost"
+  port :: int = 5432
+  name = $env.DB_NAME ?? "api_db"
+  user = $env.DB_USER ?? "api_user"
+  password = $secret.DB_PASSWORD
+  ssl_mode = "require"
+
+>> database.replica
+  driver = "postgresql"
+  host = $env.DB_REPLICA_HOST ?? "localhost"
+  port :: int = 5432
+  name = $env.DB_NAME ?? "api_db"
+  user = $env.DB_USER ?? "api_user"
+  password = $secret.DB_PASSWORD
+  ssl_mode = "require"
+  read_only :: bool = true
+
+>> cache
+  backend = "redis"
+  url = $env.REDIS_URL ?? "redis://localhost:6379/0"
+  default_ttl :: int = 300
+  key_prefix = "api:"
+
+>> queue
+  broker = $env.CELERY_BROKER ?? "redis://localhost:6379/1"
+  backend = $env.CELERY_BACKEND ?? "redis://localhost:6379/2"
+  task_serializer = "json"
+  result_serializer = "json"
+
+>> pagination
+  default_limit :: int = 20
+  max_limit :: int = 100
+  page_param = "page"
+  limit_param = "limit"
+
+>> validation
+  strict_mode :: bool = true
+  coerce_types :: bool = false
+  strip_unknown :: bool = true
+
+>> versioning
+  enabled :: bool = true
+  default_version = "2.1"
+  header_name = "Accept-Version"
+  supported_versions = ["2.0", "2.1"]
+
+>> health_check
+  enabled :: bool = true
+  path = "/health"
+  include_details :: bool = true
+
+>> metrics
+  enabled :: bool = true
+  path = "/metrics"
+  include_defaults :: bool = true
+
+>> logging
+  level = $env.LOG_LEVEL ?? "INFO"
+  format = "json"
+  include_request_id :: bool = true
+  log_requests :: bool = true
+  log_responses :: bool = false
+
+>> sentry
+  dsn = $env.SENTRY_DSN ?? ""
+  environment = $env.ENV ?? "development"
+  traces_sample_rate :: float = 0.1
+
+# Development
+>> @when $env.ENV == "development"
+  >> server
+    workers = 1
+    timeout = 60
+
+  >> security
+    rate_limit_enabled = false
+
+  >> logging
+    level = "DEBUG"
+    format = "text"
+    log_responses = true
+
+  >> sentry
+    traces_sample_rate = 1.0
+
+# Staging
+>> @when $env.ENV == "staging"
+  >> logging
+    level = "DEBUG"
+
+  >> sentry
+    traces_sample_rate = 0.5
+
+# Production
+>> @when $env.ENV == "production"
+  >> server
+    workers = 16
+    timeout = 15
+
+  >> security
+    rate_limit_requests = 500
+
+  >> logging
+    level = "WARNING"
+    log_requests = false

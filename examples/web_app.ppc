@@ -1,0 +1,110 @@
+# =============================================
+# Web Application Configuration
+# Flask/FastAPI style web app
+# =============================================
+
+>> app
+  name = "MyWebApp"
+  version = "1.0.0"
+  debug :: bool = false
+  secret_key = $secret.APP_SECRET_KEY
+
+>> server
+  host = "0.0.0.0"
+  port :: int = $env.PORT ?? 8000
+  workers :: int = 4
+  reload :: bool = false
+
+>> database
+  url = $env.DATABASE_URL ?? "sqlite:///app.db"
+  pool_size :: int = 5
+  pool_timeout :: int = 30
+  echo :: bool = false
+
+>> redis
+  host = $env.REDIS_HOST ?? "localhost"
+  port :: int = 6379
+  db :: int = 0
+  password = $env.REDIS_PASSWORD ?? ""
+
+>> session
+  type = "redis"
+  lifetime :: int = 3600
+  cookie_name = "session_id"
+  secure :: bool = true
+  httponly :: bool = true
+
+>> cors
+  enabled :: bool = true
+  origins = ["https://example.com", "https://app.example.com"]
+  methods = ["GET", "POST", "PUT", "DELETE"]
+  allow_credentials :: bool = true
+
+>> auth
+  jwt_secret = $secret.JWT_SECRET
+  jwt_algorithm = "HS256"
+  token_expire :: int = 3600
+  refresh_expire :: int = 604800
+
+>> oauth.google
+  client_id = $env.GOOGLE_CLIENT_ID
+  client_secret = $secret.GOOGLE_CLIENT_SECRET
+  redirect_uri = "https://example.com/auth/google/callback"
+
+>> oauth.github
+  client_id = $env.GITHUB_CLIENT_ID
+  client_secret = $secret.GITHUB_CLIENT_SECRET
+  redirect_uri = "https://example.com/auth/github/callback"
+
+>> mail
+  server = $env.MAIL_SERVER ?? "smtp.gmail.com"
+  port :: int = 587
+  use_tls :: bool = true
+  username = $env.MAIL_USERNAME
+  password = $secret.MAIL_PASSWORD
+  default_sender = "noreply@example.com"
+
+>> storage
+  type = "s3"
+  bucket = $env.S3_BUCKET
+  region = "ap-northeast-1"
+  access_key = $env.AWS_ACCESS_KEY_ID
+  secret_key = $secret.AWS_SECRET_ACCESS_KEY
+
+>> logging
+  level = "INFO"
+  format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file = "logs/app.log"
+  max_bytes :: int = 10485760
+  backup_count :: int = 5
+
+>> rate_limit
+  enabled :: bool = true
+  default = "100/minute"
+  storage_url = "redis://localhost:6379/1"
+
+# Development settings
+>> @when $env.ENV == "development"
+  >> app
+    debug = true
+
+  >> server
+    reload = true
+    workers = 1
+
+  >> database
+    echo = true
+
+  >> cors
+    origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+# Production settings
+>> @when $env.ENV == "production"
+  >> server
+    workers = 8
+
+  >> session
+    secure = true
+
+  >> logging
+    level = "WARNING"

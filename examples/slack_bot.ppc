@@ -1,0 +1,178 @@
+# =============================================
+# Slack Bot Configuration
+# Workspace automation and integrations
+# =============================================
+
+>> bot
+  name = "MySlackBot"
+  version = "1.0.0"
+  description = "A helpful Slack bot"
+  default_response = "I don't understand that command. Try /help"
+
+>> slack
+  bot_token = $secret.SLACK_BOT_TOKEN
+  app_token = $secret.SLACK_APP_TOKEN
+  signing_secret = $secret.SLACK_SIGNING_SECRET
+  client_id = $env.SLACK_CLIENT_ID
+  client_secret = $secret.SLACK_CLIENT_SECRET
+
+>> server
+  host = "0.0.0.0"
+  port :: int = $env.PORT ?? 3000
+  socket_mode :: bool = true
+
+>> commands
+  prefix = "/"
+  enabled = ["help", "status", "deploy", "ticket", "remind", "poll"]
+  admin_only = ["deploy", "config"]
+
+>> commands.help
+  description = "Show available commands"
+  usage = "/help [command]"
+
+>> commands.status
+  description = "Check service status"
+  usage = "/status [service]"
+  services = ["api", "database", "cache", "queue"]
+
+>> commands.deploy
+  description = "Trigger deployment"
+  usage = "/deploy <environment> <version>"
+  environments = ["staging", "production"]
+  require_approval :: bool = true
+  approval_channel = "#deployments"
+
+>> commands.ticket
+  description = "Create support ticket"
+  usage = "/ticket <title>"
+  default_assignee = ""
+  notify_channel = "#support"
+
+>> commands.remind
+  description = "Set a reminder"
+  usage = "/remind <time> <message>"
+  max_duration_days :: int = 30
+
+>> commands.poll
+  description = "Create a poll"
+  usage = "/poll <question> | <option1> | <option2> ..."
+  max_options :: int = 10
+  duration_minutes :: int = 60
+
+>> events
+  enabled :: bool = true
+  subscriptions = ["message", "reaction_added", "member_joined_channel", "app_mention"]
+
+>> events.message
+  respond_to_bots :: bool = false
+  respond_in_threads :: bool = true
+  typing_indicator :: bool = true
+
+>> events.welcome
+  enabled :: bool = true
+  channel = "#general"
+  message = "Welcome to the team, {user}! :wave:"
+  dm_enabled :: bool = true
+  dm_message = "Hi {user}! I'm here to help. Type /help to see what I can do."
+
+>> channels
+  allowed = []
+  blocked = []
+  log_channel = "#bot-logs"
+  error_channel = "#bot-errors"
+  announcement_channel = "#announcements"
+
+>> permissions
+  admins = ["U12345678", "U87654321"]
+  moderators = []
+  allowed_workspaces = []
+  rate_limit_exempt = ["U12345678"]
+
+>> rate_limit
+  enabled :: bool = true
+  messages_per_minute :: int = 20
+  commands_per_minute :: int = 10
+  per_user :: bool = true
+
+>> integrations.jira
+  enabled :: bool = true
+  url = $env.JIRA_URL
+  username = $env.JIRA_USERNAME
+  api_token = $secret.JIRA_API_TOKEN
+  project_key = "PROJ"
+  default_issue_type = "Task"
+
+>> integrations.github
+  enabled :: bool = true
+  token = $secret.GITHUB_TOKEN
+  organization = $env.GITHUB_ORG ?? ""
+  default_repo = ""
+  webhook_secret = $secret.GITHUB_WEBHOOK_SECRET
+
+>> integrations.pagerduty
+  enabled :: bool = false
+  api_key = $secret.PAGERDUTY_API_KEY ?? ""
+  service_id = $env.PAGERDUTY_SERVICE_ID ?? ""
+
+>> ai
+  enabled :: bool = true
+  provider = "openai"
+  api_key = $secret.OPENAI_API_KEY
+  model = "gpt-4"
+  max_tokens :: int = 500
+  temperature :: float = 0.7
+
+>> ai.triggers
+  keywords = ["@bot", "hey bot", "help me"]
+  channels = ["#ask-bot", "#support"]
+  dm_enabled :: bool = true
+
+>> database
+  url = $env.DATABASE_URL ?? "sqlite:///bot.db"
+  pool_size :: int = 5
+
+>> cache
+  type = "redis"
+  url = $env.REDIS_URL ?? "redis://localhost:6379/0"
+  ttl :: int = 3600
+  prefix = "slackbot:"
+
+>> logging
+  level = "INFO"
+  file = "./logs/slack_bot.log"
+  log_messages :: bool = false
+  log_commands :: bool = true
+
+>> analytics
+  enabled :: bool = true
+  track_commands :: bool = true
+  track_messages :: bool = false
+  retention_days :: int = 90
+
+# Development
+>> @when $env.ENV == "development"
+  >> server
+    socket_mode = true
+
+  >> rate_limit
+    enabled = false
+
+  >> logging
+    level = "DEBUG"
+    log_messages = true
+
+  >> ai
+    model = "gpt-3.5-turbo"
+
+# Production
+>> @when $env.ENV == "production"
+  >> commands.deploy
+    require_approval = true
+
+  >> logging
+    level = "WARNING"
+    log_messages = false
+
+  >> rate_limit
+    messages_per_minute = 10
+    commands_per_minute = 5

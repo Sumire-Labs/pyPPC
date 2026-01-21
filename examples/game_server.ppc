@@ -1,0 +1,184 @@
+# =============================================
+# Game Server Configuration
+# Multiplayer game server settings
+# =============================================
+
+>> server
+  name = "MyGameServer"
+  region = $env.SERVER_REGION ?? "asia-northeast1"
+  instance_id = $env.INSTANCE_ID ?? "game-1"
+  motd = "Welcome to the server!"
+  max_players :: int = 64
+  password = $secret.SERVER_PASSWORD ?? ""
+
+>> network
+  host = "0.0.0.0"
+  game_port :: int = $env.GAME_PORT ?? 7777
+  query_port :: int = 27015
+  rcon_port :: int = 27020
+  rcon_password = $secret.RCON_PASSWORD
+  tick_rate :: int = 64
+  max_ping :: int = 200
+  timeout :: int = 30
+
+>> network.protocol
+  version = "1.5.0"
+  compression :: bool = true
+  encryption :: bool = true
+  udp_enabled :: bool = true
+  tcp_enabled :: bool = true
+
+>> world
+  name = "MainWorld"
+  seed :: int = $env.WORLD_SEED ?? 12345
+  size = "large"
+  difficulty = "normal"
+  pvp_enabled :: bool = true
+  friendly_fire :: bool = false
+
+>> world.spawn
+  x :: float = 0.0
+  y :: float = 64.0
+  z :: float = 0.0
+  radius :: int = 100
+
+>> world.time
+  day_length :: int = 1200
+  start_time :: int = 6000
+  freeze_time :: bool = false
+
+>> world.weather
+  enabled :: bool = true
+  rain_chance :: float = 0.2
+  storm_chance :: float = 0.05
+
+>> gameplay
+  exp_multiplier :: float = 1.0
+  drop_multiplier :: float = 1.0
+  damage_multiplier :: float = 1.0
+  respawn_time :: int = 10
+  max_level :: int = 100
+
+>> gameplay.economy
+  enabled :: bool = true
+  starting_gold :: int = 100
+  tax_rate :: float = 0.05
+  max_gold :: int = 1000000
+
+>> gameplay.combat
+  headshot_multiplier :: float = 2.0
+  armor_effectiveness :: float = 0.7
+  healing_rate :: float = 1.0
+
+>> anticheat
+  enabled :: bool = true
+  kick_on_violation :: bool = true
+  ban_on_repeat :: bool = true
+  speed_check :: bool = true
+  aimbot_detection :: bool = true
+  wall_check :: bool = true
+
+>> matchmaking
+  enabled :: bool = true
+  min_players :: int = 2
+  max_wait_time :: int = 120
+  skill_based :: bool = true
+  region_lock :: bool = false
+
+>> database
+  driver = "postgresql"
+  host = $env.DB_HOST ?? "localhost"
+  port :: int = 5432
+  name = "gamedb"
+  user = $env.DB_USER ?? "game"
+  password = $secret.DB_PASSWORD
+
+>> database.player_data
+  save_interval :: int = 300
+  backup_enabled :: bool = true
+  backup_interval :: int = 3600
+
+>> cache
+  type = "redis"
+  url = $env.REDIS_URL ?? "redis://localhost:6379"
+  session_ttl :: int = 3600
+  leaderboard_ttl :: int = 60
+
+>> logging
+  level = "INFO"
+  file = "logs/server.log"
+  max_size_mb :: int = 100
+  backup_count :: int = 10
+  log_chat :: bool = true
+  log_kills :: bool = true
+  log_connections :: bool = true
+
+>> admin
+  super_admins = [76561198000000001, 76561198000000002]
+  moderators = []
+  ban_list_url = $env.BAN_LIST_URL ?? ""
+
+>> plugins
+  enabled = ["economy", "ranks", "chat-filter", "vote-kick"]
+  disabled = []
+  auto_update :: bool = true
+
+>> announcements
+  enabled :: bool = true
+  interval :: int = 300
+  messages = [
+    "Join our Discord: discord.gg/example",
+    "Vote for us at example.com/vote",
+    "Check out /help for commands"
+  ]
+
+>> backup
+  enabled :: bool = true
+  interval :: int = 3600
+  keep_count :: int = 24
+  path = "./backups"
+  compress :: bool = true
+
+# Development server
+>> @when $env.ENV == "development"
+  >> server
+    max_players = 4
+    password = "devtest"
+
+  >> anticheat
+    enabled = false
+
+  >> logging
+    level = "DEBUG"
+
+  >> gameplay
+    exp_multiplier = 10.0
+
+# Tournament mode
+>> @when $env.MODE == "tournament"
+  >> server
+    max_players = 32
+    password = $secret.TOURNAMENT_PASSWORD
+
+  >> gameplay
+    exp_multiplier = 0.0
+    drop_multiplier = 0.0
+
+  >> matchmaking
+    skill_based = true
+    region_lock = true
+
+  >> anticheat
+    kick_on_violation = true
+    ban_on_repeat = true
+
+# High population server
+>> @when $env.HIGH_POP == "true"
+  >> server
+    max_players = 128
+
+  >> network
+    tick_rate = 32
+
+  >> database.player_data
+    save_interval = 600

@@ -1,0 +1,194 @@
+# =============================================
+# PPC Full Features Demo
+# This file demonstrates ALL PPC syntax features
+# =============================================
+
+# ===================
+# 1. Comments
+# ===================
+# This is a single-line comment
+# Comments start with #
+
+# ===================
+# 2. Basic Sections
+# ===================
+>> basic
+  key = "value"
+  another_key = "another value"
+
+# ===================
+# 3. Type Hints
+# ===================
+>> types
+  # String type
+  name :: str = "Hello World"
+
+  # Integer type
+  count :: int = 42
+  negative :: int = -10
+
+  # Float type
+  pi :: float = 3.14159
+  percentage :: float = 0.85
+
+  # Boolean type
+  enabled :: bool = true
+  disabled :: bool = false
+
+  # List/Array type
+  tags :: list = ["tag1", "tag2", "tag3"]
+
+  # Without type hint (inferred)
+  inferred_string = "auto detected"
+  inferred_number = 100
+  inferred_bool = true
+
+# ===================
+# 4. Nested Sections
+# ===================
+>> parent
+  key = "parent value"
+
+>> parent.child
+  key = "child value"
+
+>> parent.child.grandchild
+  key = "grandchild value"
+
+# Alternative: inline nesting
+>> deeply.nested.section.example
+  value = "deep value"
+
+# ===================
+# 5. Arrays / Lists
+# ===================
+>> arrays
+  # Simple array
+  simple = ["a", "b", "c"]
+
+  # Number array
+  numbers = [1, 2, 3, 4, 5]
+
+  # Mixed array (strings)
+  mixed = ["hello", "world", "123"]
+
+  # Empty array
+  empty = []
+
+  # Single item array
+  single = ["only one"]
+
+# ===================
+# 6. Environment Variables
+# ===================
+>> environment
+  # Basic env var
+  home_dir = $env.HOME
+
+  # Env var with default value
+  port :: int = $env.PORT ?? 8080
+  host = $env.HOST ?? "localhost"
+
+  # Multiple env vars in same section
+  user = $env.USER ?? "anonymous"
+  shell = $env.SHELL ?? "/bin/bash"
+
+# ===================
+# 7. Secrets
+# ===================
+>> secrets_demo
+  # Basic secret reference
+  api_key = $secret.API_KEY
+
+  # Secret with default (not recommended but supported)
+  db_password = $secret.DB_PASSWORD ?? "changeme"
+
+  # Multiple secrets
+  jwt_secret = $secret.JWT_SECRET
+  encryption_key = $secret.ENCRYPTION_KEY
+
+# ===================
+# 8. Conditional Sections (@when)
+# ===================
+
+# Condition based on environment variable
+>> @when $env.ENV == "development"
+  >> basic
+    debug = true
+
+  >> logging
+    level = "DEBUG"
+    verbose = true
+
+>> @when $env.ENV == "production"
+  >> basic
+    debug = false
+
+  >> logging
+    level = "WARNING"
+    verbose = false
+
+>> @when $env.ENV == "staging"
+  >> logging
+    level = "INFO"
+
+# Condition based on feature flag
+>> @when $env.FEATURE_NEW_UI == "true"
+  >> ui
+    version = "2.0"
+    new_design = true
+
+>> @when $env.FEATURE_NEW_UI != "true"
+  >> ui
+    version = "1.0"
+    new_design = false
+
+# ===================
+# 9. Complex Example
+# ===================
+>> database.primary
+  host = $env.DB_PRIMARY_HOST ?? "localhost"
+  port :: int = $env.DB_PRIMARY_PORT ?? 5432
+  name = "myapp"
+  user = $env.DB_USER ?? "postgres"
+  password = $secret.DB_PRIMARY_PASSWORD
+  ssl :: bool = true
+  pool_size :: int = 10
+
+>> database.replica
+  host = $env.DB_REPLICA_HOST ?? "localhost"
+  port :: int = 5432
+  name = "myapp"
+  user = $env.DB_USER ?? "postgres"
+  password = $secret.DB_REPLICA_PASSWORD
+  ssl :: bool = true
+  read_only :: bool = true
+
+>> cache
+  backend = "redis"
+  url = $env.REDIS_URL ?? "redis://localhost:6379/0"
+  prefix = "myapp:"
+  ttl :: int = 3600
+  serializer = "json"
+
+>> features
+  enabled = ["auth", "api", "admin"]
+  disabled = ["legacy", "deprecated"]
+  experimental :: bool = false
+
+# ===================
+# 10. Special Characters in Strings
+# ===================
+>> strings
+  # Quotes in strings
+  with_quotes = "He said \"Hello\""
+
+  # Paths
+  windows_path = "C:\\Users\\Name\\Documents"
+  unix_path = "/home/user/documents"
+
+  # URLs
+  website = "https://example.com/path?query=value&other=123"
+
+  # Special chars
+  special = "Tab:\t Newline:\n"

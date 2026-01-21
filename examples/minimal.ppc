@@ -1,0 +1,9 @@
+# =============================================
+# Minimal PPC Example
+# The simplest possible configuration
+# =============================================
+
+>> app
+  name = "MyApp"
+  version = "1.0.0"
+  debug :: bool = false

@@ -1,0 +1,173 @@
+# =============================================
+# Web Scraper / Crawler Configuration
+# Data extraction and automation
+# =============================================
+
+>> scraper
+  name = "MyScraper"
+  version = "1.0.0"
+  user_agent = "Mozilla/5.0 (compatible; MyScraper/1.0)"
+  respect_robots :: bool = true
+  max_depth :: int = 3
+
+>> request
+  timeout :: int = 30
+  max_retries :: int = 3
+  retry_delay :: int = 5
+  verify_ssl :: bool = true
+  follow_redirects :: bool = true
+  max_redirects :: int = 10
+
+>> request.headers
+  accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  accept_language = "en-US,en;q=0.5"
+  accept_encoding = "gzip, deflate"
+  connection = "keep-alive"
+
+>> rate_limit
+  enabled :: bool = true
+  requests_per_second :: float = 1.0
+  burst :: int = 5
+  domain_delay :: int = 2
+  random_delay :: bool = true
+  random_delay_max :: int = 3
+
+>> concurrency
+  max_workers :: int = 5
+  max_connections :: int = 100
+  connection_timeout :: int = 10
+
+>> proxy
+  enabled :: bool = false
+  url = $env.PROXY_URL ?? ""
+  username = $env.PROXY_USER ?? ""
+  password = $secret.PROXY_PASSWORD ?? ""
+  rotate :: bool = true
+  rotation_interval :: int = 100
+
+>> proxy.pool
+  urls = []
+  check_interval :: int = 300
+  remove_dead :: bool = true
+
+>> browser
+  enabled :: bool = false
+  headless :: bool = true
+  browser_type = "chromium"
+  viewport_width :: int = 1920
+  viewport_height :: int = 1080
+  wait_timeout :: int = 30
+
+>> browser.stealth
+  enabled :: bool = true
+  hide_webdriver :: bool = true
+  random_viewport :: bool = true
+  random_user_agent :: bool = true
+
+>> parser
+  type = "lxml"
+  encoding = "utf-8"
+  strip_whitespace :: bool = true
+  remove_scripts :: bool = true
+  remove_styles :: bool = true
+
+>> storage
+  type = "file"
+  output_dir = "./data/scraped"
+  format = "json"
+  compression :: bool = false
+  filename_template = "{domain}_{timestamp}"
+
+>> storage.database
+  enabled :: bool = false
+  url = $env.DATABASE_URL ?? "sqlite:///scraper.db"
+  table_prefix = "scraper_"
+  batch_size :: int = 100
+
+>> deduplication
+  enabled :: bool = true
+  method = "url_hash"
+  bloom_filter_size :: int = 1000000
+  bloom_filter_error_rate :: float = 0.01
+
+>> cache
+  enabled :: bool = true
+  backend = "file"
+  path = "./cache"
+  ttl :: int = 86400
+  max_size_mb :: int = 1000
+
+>> queue
+  type = "memory"
+  max_size :: int = 10000
+  priority_enabled :: bool = true
+
+>> queue.redis
+  enabled :: bool = false
+  url = $env.REDIS_URL ?? "redis://localhost:6379/0"
+  queue_name = "scraper_queue"
+
+>> filters
+  allowed_domains = []
+  blocked_domains = []
+  allowed_paths = []
+  blocked_paths = ["/login", "/logout", "/admin"]
+  file_extensions_skip = [".pdf", ".zip", ".exe", ".dmg"]
+
+>> extraction.rules
+  title = "//title/text()"
+  description = "//meta[@name='description']/@content"
+  keywords = "//meta[@name='keywords']/@content"
+  h1 = "//h1/text()"
+  links = "//a/@href"
+  images = "//img/@src"
+
+>> logging
+  level = "INFO"
+  file = "./logs/scraper.log"
+  max_size_mb :: int = 100
+  backup_count :: int = 5
+  log_requests :: bool = true
+  log_responses :: bool = false
+
+>> monitoring
+  enabled :: bool = true
+  stats_interval :: int = 60
+  prometheus_enabled :: bool = false
+  prometheus_port :: int = 9100
+
+>> alerts
+  enabled :: bool = false
+  email = $env.ALERT_EMAIL ?? ""
+  on_error :: bool = true
+  on_completion :: bool = true
+  error_threshold :: int = 10
+
+# Development mode
+>> @when $env.ENV == "development"
+  >> rate_limit
+    requests_per_second = 10.0
+    domain_delay = 0
+
+  >> concurrency
+    max_workers = 1
+
+  >> logging
+    level = "DEBUG"
+    log_responses = true
+
+  >> cache
+    ttl = 3600
+
+# Aggressive mode (use with caution)
+>> @when $env.AGGRESSIVE == "true"
+  >> rate_limit
+    requests_per_second = 5.0
+    domain_delay = 1
+
+  >> concurrency
+    max_workers = 20
+    max_connections = 500
+
+  >> scraper
+    respect_robots = false

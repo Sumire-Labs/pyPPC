@@ -1,0 +1,160 @@
+# =============================================
+# IoT / Smart Home Configuration
+# Home automation and device management
+# =============================================
+
+>> home
+  name = "MySmartHome"
+  location = "Tokyo, Japan"
+  timezone = "Asia/Tokyo"
+  latitude :: float = 35.6762
+  longitude :: float = 139.6503
+
+>> mqtt
+  broker = $env.MQTT_BROKER ?? "localhost"
+  port :: int = 1883
+  username = $env.MQTT_USER ?? ""
+  password = $secret.MQTT_PASSWORD ?? ""
+  client_id = "smarthome-hub"
+  keepalive :: int = 60
+  qos :: int = 1
+
+>> mqtt.topics
+  prefix = "home"
+  state_suffix = "/state"
+  command_suffix = "/set"
+  availability = "home/hub/status"
+
+>> database
+  type = "sqlite"
+  path = "./data/smarthome.db"
+  backup_enabled :: bool = true
+  backup_interval :: int = 86400
+
+>> api
+  enabled :: bool = true
+  host = "0.0.0.0"
+  port :: int = 8123
+  ssl :: bool = false
+  cors_origins = ["http://localhost:3000"]
+
+>> auth
+  enabled :: bool = true
+  jwt_secret = $secret.JWT_SECRET
+  token_expiry :: int = 86400
+  api_key = $secret.API_KEY
+
+>> devices.living_room
+  lights = ["ceiling", "floor_lamp", "tv_backlight"]
+  sensors = ["temperature", "humidity", "motion"]
+  default_brightness :: int = 80
+
+>> devices.bedroom
+  lights = ["ceiling", "bedside_left", "bedside_right"]
+  sensors = ["temperature", "humidity"]
+  default_brightness :: int = 50
+
+>> devices.kitchen
+  lights = ["ceiling", "under_cabinet"]
+  sensors = ["temperature", "humidity", "smoke"]
+  default_brightness :: int = 100
+
+>> automation.morning_routine
+  enabled :: bool = true
+  trigger_time = "07:00"
+  days = ["mon", "tue", "wed", "thu", "fri"]
+  actions = ["lights_on", "coffee_start", "news_play"]
+
+>> automation.night_mode
+  enabled :: bool = true
+  trigger_time = "23:00"
+  actions = ["lights_off", "doors_lock", "thermostat_night"]
+
+>> automation.motion_lights
+  enabled :: bool = true
+  timeout :: int = 300
+  brightness :: int = 100
+  rooms = ["hallway", "bathroom", "garage"]
+
+>> climate
+  default_temp :: float = 22.0
+  min_temp :: float = 18.0
+  max_temp :: float = 28.0
+  away_temp :: float = 18.0
+  schedule_enabled :: bool = true
+
+>> climate.schedule.weekday
+  morning = "07:00"
+  morning_temp :: float = 22.0
+  day = "09:00"
+  day_temp :: float = 20.0
+  evening = "18:00"
+  evening_temp :: float = 22.0
+  night = "23:00"
+  night_temp :: float = 19.0
+
+>> security
+  alarm_enabled :: bool = true
+  cameras_enabled :: bool = true
+  motion_sensitivity :: int = 7
+  notification_delay :: int = 30
+
+>> security.zones
+  entry = ["front_door", "back_door", "garage_door"]
+  interior = ["living_room_motion", "hallway_motion"]
+  perimeter = ["window_1", "window_2", "window_3"]
+
+>> notifications
+  push_enabled :: bool = true
+  email_enabled :: bool = true
+  email_address = $env.NOTIFY_EMAIL
+  critical_only :: bool = false
+
+>> notifications.triggers
+  security_alert :: bool = true
+  smoke_detected :: bool = true
+  water_leak :: bool = true
+  temperature_extreme :: bool = true
+  device_offline :: bool = true
+
+>> integrations.google_home
+  enabled :: bool = true
+  project_id = $env.GOOGLE_PROJECT_ID
+  client_id = $env.GOOGLE_CLIENT_ID
+  client_secret = $secret.GOOGLE_CLIENT_SECRET
+
+>> integrations.alexa
+  enabled :: bool = false
+  skill_id = $env.ALEXA_SKILL_ID ?? ""
+
+>> logging
+  level = "INFO"
+  file = "./logs/smarthome.log"
+  max_size_mb :: int = 50
+  retention_days :: int = 30
+
+# Development mode
+>> @when $env.ENV == "development"
+  >> api
+    ssl = false
+
+  >> auth
+    enabled = false
+
+  >> logging
+    level = "DEBUG"
+
+# Vacation mode
+>> @when $env.VACATION_MODE == "true"
+  >> automation.morning_routine
+    enabled = false
+
+  >> automation.night_mode
+    enabled = false
+
+  >> climate
+    default_temp = 18.0
+
+  >> security
+    alarm_enabled = true
+    motion_sensitivity = 10

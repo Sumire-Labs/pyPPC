@@ -1,0 +1,143 @@
+# =============================================
+# Microservice Configuration
+# Service discovery, circuit breaker, tracing
+# =============================================
+
+>> service
+  name = "user-service"
+  version = "1.3.2"
+  instance_id = $env.INSTANCE_ID ?? "user-service-1"
+  environment = $env.ENV ?? "development"
+
+>> server
+  host = "0.0.0.0"
+  port :: int = $env.SERVICE_PORT ?? 8080
+  grpc_port :: int = $env.GRPC_PORT ?? 50051
+
+>> discovery
+  enabled :: bool = true
+  type = "consul"
+  address = $env.CONSUL_ADDR ?? "localhost:8500"
+  health_check_interval = "10s"
+  deregister_after = "1m"
+  tags = ["api", "user", "v1"]
+
+>> database
+  driver = "postgresql"
+  host = $env.DB_HOST ?? "localhost"
+  port :: int = 5432
+  name = "users"
+  user = $env.DB_USER
+  password = $secret.DB_PASSWORD
+  max_connections :: int = 20
+  min_connections :: int = 5
+
+>> messaging
+  type = "rabbitmq"
+  url = $env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672/"
+  exchange = "events"
+  queue_prefix = "user-service"
+  prefetch_count :: int = 10
+
+>> messaging.topics
+  publish = ["user.created", "user.updated", "user.deleted"]
+  subscribe = ["order.completed", "payment.received"]
+
+>> cache
+  type = "redis"
+  url = $env.REDIS_URL ?? "redis://localhost:6379/0"
+  ttl :: int = 300
+  prefix = "user:"
+
+>> circuit_breaker
+  enabled :: bool = true
+  failure_threshold :: int = 5
+  success_threshold :: int = 2
+  timeout :: int = 30
+  half_open_max_calls :: int = 3
+
+>> retry
+  enabled :: bool = true
+  max_attempts :: int = 3
+  initial_delay :: int = 100
+  max_delay :: int = 5000
+  multiplier :: float = 2.0
+
+>> timeout
+  default :: int = 5000
+  database :: int = 3000
+  external_api :: int = 10000
+
+>> tracing
+  enabled :: bool = true
+  type = "jaeger"
+  endpoint = $env.JAEGER_ENDPOINT ?? "http://localhost:14268/api/traces"
+  service_name = "user-service"
+  sample_rate :: float = 0.1
+
+>> metrics
+  enabled :: bool = true
+  type = "prometheus"
+  path = "/metrics"
+  port :: int = 9090
+  include_default :: bool = true
+
+>> health
+  liveness_path = "/health/live"
+  readiness_path = "/health/ready"
+  include_checks :: bool = true
+
+>> logging
+  level = $env.LOG_LEVEL ?? "INFO"
+  format = "json"
+  correlation_id_header = "X-Correlation-ID"
+
+>> external_services.auth_service
+  url = $env.AUTH_SERVICE_URL ?? "http://auth-service:8080"
+  timeout :: int = 3000
+  retry_enabled :: bool = true
+
+>> external_services.notification_service
+  url = $env.NOTIFICATION_SERVICE_URL ?? "http://notification-service:8080"
+  timeout :: int = 5000
+  retry_enabled :: bool = true
+
+>> external_services.payment_service
+  url = $env.PAYMENT_SERVICE_URL ?? "http://payment-service:8080"
+  timeout :: int = 10000
+  retry_enabled :: bool = true
+
+# Development
+>> @when $env.ENV == "development"
+  >> discovery
+    enabled = false
+
+  >> tracing
+    sample_rate = 1.0
+
+  >> logging
+    level = "DEBUG"
+
+  >> circuit_breaker
+    enabled = false
+
+# Kubernetes environment
+>> @when $env.KUBERNETES_SERVICE_HOST != ""
+  >> discovery
+    type = "kubernetes"
+    namespace = $env.NAMESPACE ?? "default"
+
+  >> tracing
+    endpoint = "http://jaeger-collector.observability:14268/api/traces"
+
+# Production
+>> @when $env.ENV == "production"
+  >> database
+    max_connections = 50
+    min_connections = 10
+
+  >> tracing
+    sample_rate = 0.01
+
+  >> logging
+    level = "WARNING"
