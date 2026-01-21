@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pyPPC"
-version = "0.2.0"
+dynamic = ["version"]
 description = "A human-readable configuration format for Python bots"
 readme = "README.md"
 license = "WTFPL"
@@ -51,6 +51,13 @@ Homepage = "https://sumiresaba.com/"
 Documentation = "https://sumiresaba.com/wiki/ppc/cheatsheat"
 Repository = "https://github.com/Sumire-Labs/pyPPC"
 Issues = "https://github.com/Sumire-Labs/pyPPC/issues"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "lib/ppc/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["lib/ppc", "cli/ppc_cli"]
