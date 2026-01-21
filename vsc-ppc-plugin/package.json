@@ -1,0 +1,59 @@
+{
+  "name": "ppc-plugin",
+  "displayName": "Pepe`s Config Language Support",
+  "description": "Syntax highlighting, snippets, and language support for pyPPC (.ppc) configuration files",
+  "version": "0.1.0",
+  "publisher": "sumire-labs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sumire-Labs/pyPPC"
+  },
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "ppc",
+    "pyPPC",
+    "config",
+    "configuration",
+    "pepeconfig"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ppc",
+        "aliases": [
+          "PPC",
+          "pyPPC",
+          "pepeconfig"
+        ],
+        "extensions": [
+          ".ppc"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/ppc-icon.png",
+          "dark": "./icons/ppc-icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ppc",
+        "scopeName": "source.ppc",
+        "path": "./syntaxes/ppc.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "ppc",
+        "path": "./snippets/ppc.json"
+      }
+    ]
+  },
+  "license": "WTFPL"
+}

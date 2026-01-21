@@ -1,0 +1,156 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "PPC",
+  "scopeName": "source.ppc",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#section" },
+    { "include": "#section-when" },
+    { "include": "#include" },
+    { "include": "#assignment" }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.number-sign.ppc",
+      "match": "#.*$"
+    },
+    "section": {
+      "name": "meta.section.ppc",
+      "match": "^\\s*(>>)\\s+([a-zA-Z_][a-zA-Z0-9_.]*)",
+      "captures": {
+        "1": { "name": "keyword.operator.section.ppc" },
+        "2": { "name": "entity.name.section.ppc" }
+      }
+    },
+    "section-when": {
+      "name": "meta.section.conditional.ppc",
+      "match": "^\\s*(>>)\\s+(@when)\\s+(.+)$",
+      "captures": {
+        "1": { "name": "keyword.operator.section.ppc" },
+        "2": { "name": "keyword.control.when.ppc" },
+        "3": { "name": "meta.condition.ppc" }
+      }
+    },
+    "include": {
+      "name": "meta.include.ppc",
+      "match": "^\\s*(@include)\\s+([\"'][^\"']+[\"'])",
+      "captures": {
+        "1": { "name": "keyword.control.include.ppc" },
+        "2": { "name": "string.quoted.ppc" }
+      }
+    },
+    "assignment": {
+      "name": "meta.assignment.ppc",
+      "begin": "^\\s*([a-zA-Z_][a-zA-Z0-9_-]*)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "variable.other.key.ppc" }
+      },
+      "patterns": [
+        { "include": "#type-hint" },
+        { "include": "#equals" },
+        { "include": "#value" }
+      ]
+    },
+    "type-hint": {
+      "name": "meta.type-hint.ppc",
+      "match": "(::)\\s*(str|int|float|bool|list|string|integer|boolean|array)",
+      "captures": {
+        "1": { "name": "keyword.operator.type.ppc" },
+        "2": { "name": "storage.type.ppc" }
+      }
+    },
+    "equals": {
+      "name": "keyword.operator.assignment.ppc",
+      "match": "="
+    },
+    "value": {
+      "patterns": [
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#boolean" },
+        { "include": "#null" },
+        { "include": "#array" },
+        { "include": "#env-var" },
+        { "include": "#secret" },
+        { "include": "#default-op" }
+      ]
+    },
+    "string": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.ppc",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.ppc",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.ppc",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.ppc",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "number": {
+      "name": "constant.numeric.ppc",
+      "match": "-?\\d+(\\.\\d+)?"
+    },
+    "boolean": {
+      "name": "constant.language.boolean.ppc",
+      "match": "\\b(true|false|yes|no|on|off)\\b"
+    },
+    "null": {
+      "name": "constant.language.null.ppc",
+      "match": "\\b(null|none|nil)\\b"
+    },
+    "array": {
+      "name": "meta.array.ppc",
+      "begin": "\\[",
+      "end": "\\]",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.array.begin.ppc" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.array.end.ppc" }
+      },
+      "patterns": [
+        { "include": "#value" },
+        {
+          "name": "punctuation.separator.comma.ppc",
+          "match": ","
+        }
+      ]
+    },
+    "env-var": {
+      "name": "variable.other.env.ppc",
+      "match": "(\\$env)\\.([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.env.ppc" },
+        "2": { "name": "variable.other.env-name.ppc" }
+      }
+    },
+    "secret": {
+      "name": "variable.other.secret.ppc",
+      "match": "(\\$secret)\\.([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.other.secret.ppc" },
+        "2": { "name": "variable.other.secret-name.ppc" }
+      }
+    },
+    "default-op": {
+      "name": "keyword.operator.default.ppc",
+      "match": "\\?\\?"
+    }
+  }
+}

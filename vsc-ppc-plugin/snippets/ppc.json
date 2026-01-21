@@ -1,0 +1,166 @@
+{
+  "Section": {
+    "prefix": "section",
+    "body": [
+      ">> ${1:section_name}",
+      "  ${2:key} = ${3:value}",
+      "$0"
+    ],
+    "description": "Create a new section"
+  },
+  "Nested Section": {
+    "prefix": "section-nested",
+    "body": [
+      ">> ${1:parent}.${2:child}",
+      "  ${3:key} = ${4:value}",
+      "$0"
+    ],
+    "description": "Create a nested section"
+  },
+  "Key Value": {
+    "prefix": "kv",
+    "body": [
+      "${1:key} = ${2:value}"
+    ],
+    "description": "Key value pair"
+  },
+  "Key Value with Type": {
+    "prefix": "kvt",
+    "body": [
+      "${1:key} :: ${2|str,int,float,bool,list|} = ${3:value}"
+    ],
+    "description": "Key value pair with type hint"
+  },
+  "String Value": {
+    "prefix": "str",
+    "body": [
+      "${1:key} :: str = \"${2:value}\""
+    ],
+    "description": "String value with type hint"
+  },
+  "Integer Value": {
+    "prefix": "int",
+    "body": [
+      "${1:key} :: int = ${2:0}"
+    ],
+    "description": "Integer value with type hint"
+  },
+  "Boolean Value": {
+    "prefix": "bool",
+    "body": [
+      "${1:key} :: bool = ${2|true,false|}"
+    ],
+    "description": "Boolean value with type hint"
+  },
+  "Array Value": {
+    "prefix": "array",
+    "body": [
+      "${1:key} = [${2:items}]"
+    ],
+    "description": "Array value"
+  },
+  "Environment Variable": {
+    "prefix": "env",
+    "body": [
+      "\\$env.${1:VAR_NAME}"
+    ],
+    "description": "Environment variable reference"
+  },
+  "Environment Variable with Default": {
+    "prefix": "envd",
+    "body": [
+      "\\$env.${1:VAR_NAME} ?? ${2:default}"
+    ],
+    "description": "Environment variable with default"
+  },
+  "Secret": {
+    "prefix": "secret",
+    "body": [
+      "\\$secret.${1:SECRET_NAME}"
+    ],
+    "description": "Secret reference"
+  },
+  "Conditional Section": {
+    "prefix": "when",
+    "body": [
+      ">> @when \\$env.${1:VAR} == \"${2:value}\"",
+      "  >> ${3:section}",
+      "    ${4:key} = ${5:value}",
+      "$0"
+    ],
+    "description": "Conditional section"
+  },
+  "Include": {
+    "prefix": "include",
+    "body": [
+      "@include \"${1:filename.ppc}\""
+    ],
+    "description": "Include another file"
+  },
+  "Bot Template": {
+    "prefix": "bot-template",
+    "body": [
+      "# Discord Bot Configuration",
+      "",
+      ">> bot",
+      "  token :: str = \\$env.DISCORD_TOKEN",
+      "  prefix :: str = \"${1:!}\"",
+      "  description = \"${2:My Discord Bot}\"",
+      "",
+      ">> database",
+      "  host = \"${3:localhost}\"",
+      "  port :: int = ${4:5432}",
+      "  password = \\$secret.DB_PASS",
+      "",
+      ">> cogs",
+      "  enabled = [${5:\"music\", \"moderation\"}]",
+      "",
+      ">> @when \\$env.ENV == \"dev\"",
+      "  >> bot",
+      "    debug = true",
+      "    prefix = \"??\"",
+      "$0"
+    ],
+    "description": "Discord bot configuration template"
+  },
+  "Web Template": {
+    "prefix": "web-template",
+    "body": [
+      "# Web Application Configuration",
+      "",
+      ">> server",
+      "  host = \"${1:0.0.0.0}\"",
+      "  port :: int = \\$env.PORT ?? ${2:8080}",
+      "  debug :: bool = false",
+      "",
+      ">> database",
+      "  url = \\$env.DATABASE_URL ?? \"${3:sqlite:///app.db}\"",
+      "",
+      ">> session",
+      "  secret_key = \\$secret.SESSION_KEY",
+      "  expire :: int = ${4:3600}",
+      "",
+      ">> @when \\$env.ENV == \"dev\"",
+      "  >> server",
+      "    debug = true",
+      "$0"
+    ],
+    "description": "Web application configuration template"
+  },
+  "Comment": {
+    "prefix": "comment",
+    "body": [
+      "# ${1:comment}"
+    ],
+    "description": "Add a comment"
+  },
+  "Comment Block": {
+    "prefix": "comment-block",
+    "body": [
+      "# ============================================",
+      "# ${1:Title}",
+      "# ============================================"
+    ],
+    "description": "Comment block header"
+  }
+}
