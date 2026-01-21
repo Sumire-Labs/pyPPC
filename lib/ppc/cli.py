@@ -161,7 +161,7 @@ def cmd_validate(args):
         if "not found" not in str(e).lower():
             raise
 
-    print(f"✓ {path} is valid")
+    print(f"[OK] {path} is valid")
 
 
 def cmd_format(args):
@@ -178,7 +178,7 @@ def cmd_format(args):
     if args.write:
         with open(path, "w", encoding="utf-8") as f:
             f.write(formatted)
-        print(f"✓ Formatted {path}")
+        print(f"[OK] Formatted {path}")
     else:
         print(formatted)
 
@@ -194,7 +194,7 @@ def cmd_to_json(args):
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(output)
-        print(f"✓ Saved to {args.output}")
+        print(f"[OK] Saved to {args.output}")
     else:
         print(output)
 
@@ -210,7 +210,7 @@ def cmd_to_yaml(args):
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(output)
-        print(f"✓ Saved to {args.output}")
+        print(f"[OK] Saved to {args.output}")
     else:
         print(output)
 
@@ -301,18 +301,18 @@ def cmd_env(args):
                 print(f"  - SECRET_{var}", file=sys.stderr)
             sys.exit(1)
         else:
-            print("✓ All environment variables are set")
+            print("[OK] All environment variables are set")
     else:
         if env_vars:
             print("Environment variables:")
             for var in sorted(env_vars):
-                status = "✓" if var in os.environ else "✗"
+                status = "[OK]" if var in os.environ else "[NG]"
                 print(f"  {status} {var}")
 
         if secrets:
             print("\nSecrets (SECRET_*):")
             for var in sorted(secrets):
-                status = "✓" if f"SECRET_{var}" in os.environ else "✗"
+                status = "[OK]" if f"SECRET_{var}" in os.environ else "[NG]"
                 print(f"  {status} SECRET_{var}")
 
 
@@ -371,7 +371,7 @@ def cmd_init(args):
     with open(output, "w", encoding="utf-8") as f:
         f.write(templates[args.template])
 
-    print(f"✓ Created {output}")
+    print(f"[OK] Created {output}")
 
 
 if __name__ == "__main__":
